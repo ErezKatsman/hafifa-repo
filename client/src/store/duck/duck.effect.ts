@@ -46,3 +46,11 @@ export const DeleteDuckEpic = (
     map(() => duckActions.getDucksAction())
   );
 };
+
+const cases = `
+camelCase
+PascalCase
+kebab-case
+snake_case
+SCREAMING_SNAKE_CASE
+`
