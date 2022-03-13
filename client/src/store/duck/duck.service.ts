@@ -14,9 +14,6 @@ class DuckService {
     }
   }
 
-  // todo: work with IAddDuck
-  //? why when the input is empty it works
-
   public async addDuck(name: string, color: string) {
     const { mutation } = addDuckGql;
     try {
@@ -29,9 +26,8 @@ class DuckService {
     }
   }
 
-  public async deleteDuck(id: number) {
+  public async deleteDuck(id: string) {
     const { mutation } = deleteDuck;
-    console.log(id);
     try {
       await apollo.mutate({
         mutation,

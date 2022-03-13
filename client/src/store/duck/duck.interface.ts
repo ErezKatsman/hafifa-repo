@@ -10,5 +10,5 @@ export interface IAddDuckArgs {
 }
 
 export interface IDeleteDuckArgs {
-  id: number;
+  id: any;
 }

@@ -9,15 +9,16 @@ interface IDuckProps {
 
 export default function Duck({ duck }: IDuckProps) {
   const dispach = useDispatch();
-  const deleteHandle = (id: number) => {
-    dispach(duckActions.deleteDuckAction({ id }));
+
+  const deleteHandle = () => {
+    dispach(duckActions.deleteDuckAction({ id: duck.id }));
   };
   return (
     <div>
       <div>
         <h2>{duck.id}</h2>
       </div>
-      <button onClick={() => deleteHandle(duck.id)}>DELETE DUCK</button>
+      <button onClick={deleteHandle}>DELETE DUCK</button>
       <div>{duck.name}</div>
       <div>{duck.color}</div>
     </div>

@@ -7,7 +7,7 @@ export enum Colors {
 }
 
 export interface IDuck {
-  id: number;
+  id: string;
   name: string;
   color: Colors;
 }

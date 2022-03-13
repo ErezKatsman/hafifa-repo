@@ -1,5 +1,7 @@
 import { ApolloServer, gql } from "apollo-server";
+import mongoose from "mongoose";
 import { IDuck, Colors } from "./shared/interfaces";
+import { Duck } from "./models/Duck";
 
 const ducks: IDuck[] = [
   { id: 1, name: "Erez", color: Colors.red },
@@ -9,7 +11,7 @@ const ducks: IDuck[] = [
 ];
 
 interface IDuckByIdArgs {
-  id: number;
+  id: string;
 }
 
 interface IAddDuckArgs {
@@ -20,9 +22,8 @@ interface IAddDuckArgs {
 }
 
 interface ISetDuckArgs {
-  id: number;
+  id: string;
   duckInput: {
-    id: number;
     name: string;
     color: Colors;
   };
@@ -30,35 +31,27 @@ interface ISetDuckArgs {
 
 const resolvers = {
   Query: {
-    ducks: () => ducks,
-    duckById: (_: any, { id }: IDuckByIdArgs) =>
-      ducks.find((duck) => duck.id === id),
+    ducks: async () => await Duck.find(),
+    duckById: async (_: any, { id }: IDuckByIdArgs) => {
+      console.log(typeof id);
+      return await Duck.findById(id);
+    },
   },
   Mutation: {
-    addDuck: (_: any, { duckInput }: IAddDuckArgs) => {
-      const id = ducks[ducks.length - 1].id + 1;
-      const newDuck: IDuck = { id, ...duckInput };
-      ducks.push(newDuck);
+    addDuck: async (_: any, { duckInput }: IAddDuckArgs) => {
+      const newDuck = new Duck({
+        name: duckInput.name,
+        color: duckInput.color,
+      });
+      await newDuck.save();
       return newDuck;
     },
-    setDuck: (_: any, { id, duckInput }: ISetDuckArgs) => {
-      const i = ducks.findIndex((duck) => duck.id === id);
-      if (i === -1) throw new Error("Duck not found");
-      const oldDuck = ducks[i];
-      const newDuck = {
-        ...oldDuck,
-        ...duckInput,
-      };
-      ducks[i] = newDuck;
-      return newDuck;
+    setDuck: async (_: any, { id, duckInput }: ISetDuckArgs) => {
+      await Duck.findByIdAndUpdate(id, duckInput);
+      return await Duck.findById(id);
     },
-    deleteDuck: (_: any, { id }: IDuckByIdArgs) => {
-      const index = ducks.findIndex((duck) => duck.id === id);
-      const duckDeleted = ducks[index];
-      if (index > -1) {
-        ducks.splice(index, 1);
-      }
-      return duckDeleted;
+    deleteDuck: async (_: any, { id }: IDuckByIdArgs) => {
+      return await Duck.findByIdAndDelete(id);
     },
   },
 };
@@ -70,17 +63,17 @@ const typeDefs = gql`
   }
 
   type Duck {
-    id: Int
+    id: ID!
     name: String
     color: String
   }
 
   type Query {
-    ducks: [Duck]
+    ducks: [Duck!]!
   }
 
   type Query {
-    duckById(id: Int!): Duck
+    duckById(id: String!): Duck
   }
 
   type Mutation {
@@ -88,11 +81,11 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    setDuck(id: Int!, duckInput: DuckInput!): Duck
+    setDuck(id: String!, duckInput: DuckInput!): Duck
   }
 
   type Mutation {
-    deleteDuck(id: Int!): Duck
+    deleteDuck(id: String!): Duck
   }
 `;
 
@@ -101,3 +94,9 @@ const server = new ApolloServer({ typeDefs, resolvers });
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
+
+// "mongodb://localhost/testdb" ==> local
+mongoose
+  .connect("mongodb://mongodb:27017/docker-node-mongo")
+  .then(() => console.log("mongoDB conncted"))
+  .catch((err) => console.log(err));

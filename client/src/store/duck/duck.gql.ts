@@ -26,7 +26,7 @@ export const addDuckGql = {
 
 export const deleteDuck = {
   mutation: gql`
-    mutation DeleteDuck($id: Int!) {
+    mutation DeleteDuck($id: String!) {
       deleteDuck(id: $id) {
         id
         name
